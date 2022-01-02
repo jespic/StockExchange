@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BagLib.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -9,15 +10,12 @@ namespace ApiCountryLib
 {
     public class ApiCountryClient
     {
-        public ApiCountryClient(string url, int version)
+        public ApiCountryClient(string url)
         {
             this.mUrl = url;
-            Version = version;
         }
 
         protected string mUrl { get; set; }
-
-        protected int Version { get; set; }
 
         protected HttpClient client { get; set; }
 
@@ -25,10 +23,10 @@ namespace ApiCountryLib
 
         protected string GetRelative(string name)
         {
-            return $"/v{Version}/{name}";
+            return $"/jespic/StockExchangeMyJSONServer/{name}";
         }
 
-        public async Task<List<Country>> GetCountries()
+        public async Task<List<Country>> GetCountriesAsync()
         {
             client = new HttpClient();
 
@@ -37,7 +35,7 @@ namespace ApiCountryLib
             // Para reutilizar código sin embeber el número de versión:
             //var response = await client.GetAsync("/v2/all");
 
-            var response = await client.GetAsync( GetRelative("all") );
+            var response = await client.GetAsync( GetRelative("Countries") );
 
 
             if ( response.IsSuccessStatusCode )
@@ -54,5 +52,61 @@ namespace ApiCountryLib
 
             return null;
         }
+
+        public async Task<List<Country>> GetCountryCurrencies()
+        {
+            client = new HttpClient();
+
+            client.BaseAddress = new Uri(this.mUrl);
+
+            // Para reutilizar código sin embeber el número de versión:
+            //var response = await client.GetAsync("/v2/all");
+
+            var response = await client.GetAsync(GetRelative("CountryCurrencies"));
+
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Ya no hace falta, estoy convirtiendo el json directamente a mis clases
+                //string chorizoJson = await response.Content.ReadAsStringAsync();
+
+                return await response.Content.ReadAsAsync<List<Country>>();
+            }
+            else
+            {
+
+            }
+
+            return null;
+        }
+
+
+        public async Task<List<Currency>> GetCurrencies()
+        {
+            client = new HttpClient();
+
+            client.BaseAddress = new Uri(this.mUrl);
+
+            // Para reutilizar código sin embeber el número de versión:
+            //var response = await client.GetAsync("/v2/all");
+
+            var response = await client.GetAsync(GetRelative("Currencies"));
+
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Ya no hace falta, estoy convirtiendo el json directamente a mis clases
+                //string chorizoJson = await response.Content.ReadAsStringAsync();
+
+                return await response.Content.ReadAsAsync<List<Currency>>();
+            }
+            else
+            {
+
+            }
+
+            return null;
+        }
+
     }
 }
